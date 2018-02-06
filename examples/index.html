@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Json TreeView</title>
+    <link rel="stylesheet" href="//cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="../dist/jsontreeview.css" crossorigin="anonymous">
+  </head>
+  <body>
+    <div class="container">
+      <h1>JSON TreeView Example</h1>
+      <div class="row">
+        <div class="col-md-3 col-lg-2">
+          <div id="example"></div>
+        </div>
+        <div class="col-md-9 col-lg-9">
+          <div class="panel panel-default">
+            <div class="panel-body">aaaa</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="//cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://fb.me/react-15.0.1.js"></script>
+    <script src="https://fb.me/react-dom-15.0.1.js"></script>
+    <script src="../dist/jsontreeview.js"></script>
+    <script>
+        var treejson = [
+          {
+            id: 1,
+            title: "item1",
+            expand: false,
+            checked: false,
+            nodes: [{
+              id: 11,
+              title: 'item1-1',
+              expand: true,
+              checked: false,
+              nodes: []
+            },{
+              id: 12,
+              title: 'item1-2',
+              expand: false,
+              checked: false,
+              nodes: [{
+                id: 121,
+                title: 'item1-2-1',
+                expand: true,
+                checked: false,
+                nodes: []
+              },{
+                id: 122,
+                title: 'item1-2-2',
+                expand: true,
+                checked: false,
+                nodes: []
+              }]
+            }]
+          },{
+            id: 2,
+            title: "item2",
+            expand: true,
+            checked: false,
+            nodes: []
+          },{
+            id: 3,
+            title: "item3",
+            expand: true,
+            checked: false,
+            nodes: []
+          },{
+            id: 4,
+            title: "item4",
+            expand: true,
+            checked: false,
+            nodes: []
+          }
+        ]
+
+        var element = document.getElementById('example');
+        var editor = new JSONTreeView(element, {
+            data: treejson,
+            onClick: function(node){
+              alert(node.id+'-->'+node.text);
+            }
+        });
+    </script>
+  </body>
+</html>

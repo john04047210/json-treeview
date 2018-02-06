@@ -1,0 +1,41 @@
+{
+  "name": "json-treeview",
+  "version": "1.0.0",
+  "description": "create treeview by json,use bootstrap css style",
+  "main": "dist/jsontreeview.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "server": "webpack-dev-server --open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/john04047210/json-treeview.git"
+  },
+  "keywords": [
+    "treeview"
+  ],
+  "author": "peng.qiao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/john04047210/json-treeview/issues"
+  },
+  "homepage": "https://github.com/john04047210/json-treeview#readme",
+  "dependencies": {
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.9",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.20.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.1"
+  }
+}
