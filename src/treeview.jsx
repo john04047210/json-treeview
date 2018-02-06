@@ -7,7 +7,9 @@ class TreeViewChild extends React.Component {
     this.state = {
       data: props.data,
       onClick: props.onClick
-    }
+    };
+    this.handleToggle = this.handleToggle.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
   handleToggle(event) {
@@ -28,15 +30,15 @@ class TreeViewChild extends React.Component {
     let childli = this.state.data.map((node, index) => {
         if(node.nodes.length > 0) {
           return <li id={'li_'+node.id} key={node.id} data-index={index}>
-            <span className={node.expand?'glyphicon glyphicon-minus':'glyphicon glyphicon-plus'} aria-hidden="true" onClick={(event) => this.handleToggle(event)}></span>
-            <div id={node.id} className='display-block' onClick={event => this.handleClick(event)}>{node.title}</div>
+            <span className={node.expand?'glyphicon glyphicon-minus':'glyphicon glyphicon-plus'} aria-hidden="true" onClick={this.handleToggle}></span>
+            <div id={node.id} className='display-block' onClick={this.handleClick}>{node.title}</div>
             <ul className={node.expand?'nav nav-pills nav-stacked indentation':'nav nav-pills nav-stacked indentation hide'}>
               <TreeViewChild onClick={this.state.onClick} data={node.nodes}/>
             </ul>
           </li>
         } else {
           return <li id={'li_'+node.id} key={node.id}>
-            <div id={node.id} className='display-block' onClick={event => this.handleClick(event)}>{node.title}</div></li>
+            <div id={node.id} className='display-block' onClick={this.handleClick}>{node.title}</div></li>
         }
       });
     return (

@@ -978,6 +978,8 @@ var TreeViewChild = function (_React$Component) {
       data: props.data,
       onClick: props.onClick
     };
+    _this.handleToggle = _this.handleToggle.bind(_this);
+    _this.handleClick = _this.handleClick.bind(_this);
     return _this;
   }
 
@@ -1007,14 +1009,10 @@ var TreeViewChild = function (_React$Component) {
           return _react2.default.createElement(
             'li',
             { id: 'li_' + node.id, key: node.id, 'data-index': index },
-            _react2.default.createElement('span', { className: node.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus', 'aria-hidden': 'true', onClick: function onClick(event) {
-                return _this2.handleToggle(event);
-              } }),
+            _react2.default.createElement('span', { className: node.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus', 'aria-hidden': 'true', onClick: _this2.handleToggle }),
             _react2.default.createElement(
               'div',
-              { id: node.id, className: 'display-block', onClick: function onClick(event) {
-                  return _this2.handleClick(event);
-                } },
+              { id: node.id, className: 'display-block', onClick: _this2.handleClick },
               node.title
             ),
             _react2.default.createElement(
@@ -1029,9 +1027,7 @@ var TreeViewChild = function (_React$Component) {
             { id: 'li_' + node.id, key: node.id },
             _react2.default.createElement(
               'div',
-              { id: node.id, className: 'display-block', onClick: function onClick(event) {
-                  return _this2.handleClick(event);
-                } },
+              { id: node.id, className: 'display-block', onClick: _this2.handleClick },
               node.title
             )
           );
