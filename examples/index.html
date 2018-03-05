@@ -12,13 +12,37 @@
     <div class="container">
       <h1>JSON TreeView Example</h1>
       <div class="row">
-        <div class="col-md-3 col-lg-2">
+        <div class="col-md-4 col-lg-3">
+          <label class="checkbox-inline">
+            <input type="checkbox" id="btn-checkable" value="1"> Checkable
+          </label>
+          <label class="checkbox-inline hide">
+            <input type="checkbox" id="btn-checkable-multi" value="1" disabled> Multi
+          </label>
+          <label class="checkbox-inline">
+            <input type="checkbox" id="btn-editable" value="1"> Editable
+          </label>
           <div id="example"></div>
         </div>
-        <div class="col-md-9 col-lg-9">
+        <div class="col-md-8 col-lg-8">
           <div class="panel panel-default">
             <div class="panel-body">
-              <div id="testDiv"></div>
+              <div class="row">
+                <div class="col-sm-12 col-md-12">
+                  <button class="btn btn-primary" id="showTreejson">show tree json</button>
+                  <pre class="pre-scrollable" id="treeJson"></pre>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-6 col-md-6">
+                  <span>Click Events</span>
+                  <pre class="pre-scrollable" id="click_event"></pre>
+                </div>
+                <div class="col-sm-6 col-md-6">
+                  <span>Selected Node Info</span>
+                  <pre class="pre-scrollable" id="select_node_info"></pre>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -33,60 +57,122 @@
           {
             id: 1,
             title: "item1",
-            expand: false,
-            checked: false,
-            nodes: [{
+            icon: "",
+            state: {
+              expand: true,
+              selected: false,
+              checked: false
+            },
+            children: [{
               id: 11,
               title: 'item1-1',
-              expand: true,
-              checked: false,
-              nodes: []
+              icon: "",
+              state: {
+                expand: false,
+                selected: false,
+                checked: true
+              },
+              children: []
             },{
               id: 12,
               title: 'item1-2',
-              expand: false,
-              checked: false,
-              nodes: [{
+              icon: "",
+              state: {
+                expand: false,
+                selected: false,
+                checked: false
+              },
+              children: [{
                 id: 121,
                 title: 'item1-2-1',
-                expand: true,
-                checked: false,
-                nodes: []
+                icon: "",
+                state: {
+                  expand: false,
+                  selected: false,
+                  checked: true
+                },
+                children: []
               },{
                 id: 122,
                 title: 'item1-2-2',
-                expand: true,
-                checked: false,
-                nodes: []
+                icon: "",
+                state: {
+                  expand: false,
+                  selected: false,
+                  checked: false
+                },
+                children: []
               }]
             }]
           },{
             id: 2,
             title: "item2",
-            expand: true,
-            checked: false,
-            nodes: []
+            icon: "",
+            state: {
+              expand: false,
+              selected: false,
+              checked: false
+            },
+            children: []
           },{
             id: 3,
             title: "item3",
-            expand: true,
-            checked: false,
-            nodes: []
+            icon: "",
+            state: {
+              expand: false,
+              selected: false,
+              checked: false
+            },
+            children: []
           },{
             id: 4,
             title: "item4",
-            expand: true,
-            checked: false,
-            nodes: []
+            icon: "",
+            state: {
+              expand: false,
+              selected: false,
+              checked: false
+            },
+            children: []
           }
         ]
 
         var element = document.getElementById('example');
         var editor = new JSONTreeView(element, {
             data: treejson,
+            isCheckable: $('#btn-checkable').is(':checked'),
+            isEditable: $('#btn-editable').is(':checked'),
             onClick: function(node){
-              $('#testDiv').text('click info: '+node.id+'-->'+node.text);
+              clicktree(node);
             }
+        });
+        function clicktree(node) {
+          $('#click_event').append(node.id+'-->'+node.title+'<br/>');
+          $('#select_node_info').text(JSON.stringify(node, null, 4));
+        }
+        $('#btn-checkable').on('change', function(){
+          editor.setValue({
+            data: treejson,
+            isCheckable: $('#btn-checkable').is(':checked'),
+            isEditable: $('#btn-editable').is(':checked'),
+            onClick: function(node){
+              clicktree(node);
+            }
+          });
+        });
+        $('#btn-editable').on('change', function(){
+          editor.setValue({
+            data: treejson,
+            isCheckable: $('#btn-checkable').is(':checked'),
+            isEditable: $('#btn-editable').is(':checked'),
+            onClick: function(node){
+              clicktree(node);
+            }
+          });
+        });
+        $('#showTreejson').on('click', function(){
+          let tmp = editor.getValue();
+          $('#treeJson').text(JSON.stringify(tmp, null, 4));
         });
     </script>
   </body>

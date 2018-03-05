@@ -976,28 +976,115 @@ var TreeViewChild = function (_React$Component) {
 
     _this.state = {
       data: props.data,
-      onClick: props.onClick
+      parents: props.parents.slice() || []
     };
     _this.handleToggle = _this.handleToggle.bind(_this);
     _this.handleClick = _this.handleClick.bind(_this);
+    _this.handleChecked = _this.handleChecked.bind(_this);
+    _this.handlePlus = _this.handlePlus.bind(_this);
+    _this.handleMinus = _this.handleMinus.bind(_this);
     return _this;
   }
 
+  // 新しいパラメータがロードしたコンポーネントにパスされると、実行する。
+
+
   _createClass(TreeViewChild, [{
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(newProps) {
+      this.setState({
+        data: newProps.data,
+        parents: newProps.parents.slice() || []
+      });
+    }
+  }, {
     key: 'handleToggle',
     value: function handleToggle(event) {
       var idx = event.target.parentElement.dataset.index;
-      this.state.data[idx].expand = !this.state.data[idx].expand;
-      this.setState(this.state);
+      var newData = this.state.data.slice();
+      newData[idx].state.expand = !this.state.data[idx].state.expand;
+      this.setState(function () {
+        return { data: newData };
+      });
     }
   }, {
     key: 'handleClick',
     value: function handleClick(event) {
+      if ("LI" != event.target.tagName) {
+        event.preventDefault();
+        return;
+      }
       var node = {
         id: event.target.id,
-        text: event.target.textContent
+        title: this.state.data[event.target.dataset.index].title,
+        parents: this.state.parents
       };
-      this.state.onClick(node);
+      this.props.onClick(node);
+    }
+  }, {
+    key: 'handleChecked',
+    value: function handleChecked(event) {
+      if (this.props.isCheckable) {
+        var idx = event.target.parentElement.dataset.index;
+        var newData = this.state.data.slice();
+        newData[idx].state.checked = !this.state.data[idx].state.checked;
+        this.setState(function () {
+          return { data: newData };
+        });
+      } else {
+        event.preventDefault();
+      }
+    }
+  }, {
+    key: 'handlePlus',
+    value: function handlePlus(event) {
+      if (this.props.isEditable) {
+        var idx = -1;
+        if ("SPAN" == event.target.tagName) {
+          idx = event.target.parentElement.parentElement.parentElement.dataset.index;
+        } else {
+          idx = event.target.parentElement.parentElement.dataset.index;
+        }
+        var newData = this.state.data.slice();
+        if (!newData[idx].state.expand) {
+          newData[idx].state.expand = true;
+        }
+        newData[idx].children.push({
+          id: Date.now(),
+          title: 'new node',
+          icon: "",
+          state: {
+            expand: false,
+            selected: false,
+            checked: false
+          },
+          children: []
+        });
+        this.setState(function () {
+          return { data: newData };
+        });
+      } else {
+        event.preventDefault();
+      }
+    }
+  }, {
+    key: 'handleMinus',
+    value: function handleMinus(event) {
+      if (this.props.isEditable) {
+        var idx = -1;
+        if ("SPAN" == event.target.tagName) {
+          idx = event.target.parentElement.parentElement.parentElement.dataset.index;
+        } else {
+          idx = event.target.parentElement.parentElement.dataset.index;
+        }
+        var newData = this.state.data.slice();
+        newData.splice(idx, 1);
+        this.setState(function () {
+          return { data: newData };
+        });
+      } else {
+        event.preventDefault();
+      }
     }
   }, {
     key: 'render',
@@ -1005,39 +1092,66 @@ var TreeViewChild = function (_React$Component) {
       var _this2 = this;
 
       var childli = this.state.data.map(function (node, index) {
-        if (node.nodes.length > 0) {
-          return _react2.default.createElement(
-            'li',
-            { id: 'li_' + node.id, key: node.id, 'data-index': index },
-            _react2.default.createElement('span', { className: node.expand ? 'glyphicon glyphicon-minus' : 'glyphicon glyphicon-plus', 'aria-hidden': 'true', onClick: _this2.handleToggle }),
+        var element = [];
+        var active_class = node.state.selected ? 'list-group-item active' : 'list-group-item';
+        var indent = [];
+        var checked_class = "glyphicon";
+        var edit_span = null;
+        if (_this2.props.isCheckable) {
+          checked_class = node.state.checked ? "icon glyphicon glyphicon-check" : "icon glyphicon glyphicon-unchecked";
+        }
+        if (_this2.props.isEditable) {
+          edit_span = _react2.default.createElement(
+            'div',
+            { className: 'btn-group pull-right' },
             _react2.default.createElement(
-              'div',
-              { id: node.id, className: 'display-block', onClick: _this2.handleClick },
-              node.title
+              'button',
+              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Create Children', onClick: _this2.handlePlus },
+              _react2.default.createElement('span', { className: 'glyphicon glyphicon-plus', 'aria-hidden': 'true' })
             ),
             _react2.default.createElement(
-              'ul',
-              { className: node.expand ? 'nav nav-pills nav-stacked indentation' : 'nav nav-pills nav-stacked indentation hide' },
-              _react2.default.createElement(TreeViewChild, { onClick: _this2.state.onClick, data: node.nodes })
-            )
-          );
-        } else {
-          return _react2.default.createElement(
-            'li',
-            { id: 'li_' + node.id, key: node.id },
-            _react2.default.createElement(
-              'div',
-              { id: node.id, className: 'display-block', onClick: _this2.handleClick },
-              node.title
+              'button',
+              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Remove Children', onClick: _this2.handleMinus },
+              _react2.default.createElement('span', { className: 'glyphicon glyphicon-minus', 'aria-hidden': 'true' })
             )
           );
         }
+        for (var idx = 0; idx < _this2.props.level; idx++) {
+          indent.push(_react2.default.createElement('span', { className: 'indent', 'aria-hidden': 'true' }));
+        }
+        if (node.children.length > 0) {
+          var parents = _this2.state.parents.slice();
+          parents.push({ id: node.id, title: node.title });
+          var expand_class = node.state.expand ? 'icon expand-icon glyphicon glyphicon-minus' : 'icon expand-icon glyphicon glyphicon-plus';
+          element.push(_react2.default.createElement(
+            'li',
+            { className: active_class, id: node.id, key: "child_" + node.id, 'data-index': index, onClick: _this2.handleClick },
+            edit_span,
+            indent,
+            _react2.default.createElement('span', { className: expand_class, 'aria-hidden': 'true', onClick: _this2.handleToggle }),
+            _react2.default.createElement('span', { className: checked_class, 'aria-hidden': 'true', onClick: _this2.handleChecked }),
+            _react2.default.createElement('span', { className: 'icon node-icon', 'aria-hidden': 'true' }),
+            node.title
+          ));
+          if (node.state.expand) {
+            var children_node = _react2.default.createElement(TreeViewChild, { key: "parent_" + node.id, onClick: _this2.props.onClick, data: node.children,
+              isCheckable: _this2.props.isCheckable, isEditable: _this2.props.isEditable, parents: parents, level: _this2.props.level + 1 });
+            element.push(children_node);
+          }
+        } else {
+          element.push(_react2.default.createElement(
+            'li',
+            { className: active_class, id: node.id, key: "child_" + node.id, 'data-index': index, onClick: _this2.handleClick },
+            edit_span,
+            indent,
+            _react2.default.createElement('span', { className: checked_class, 'aria-hidden': 'true', onClick: _this2.handleChecked }),
+            _react2.default.createElement('span', { className: 'icon node-icon', 'aria-hidden': 'true' }),
+            node.title
+          ));
+        }
+        return element;
       });
-      return _react2.default.createElement(
-        'div',
-        null,
-        childli
-      );
+      return childli;
     }
   }]);
 
@@ -1053,22 +1167,46 @@ var TreeView = function (_React$Component2) {
     var _this3 = _possibleConstructorReturn(this, (TreeView.__proto__ || Object.getPrototypeOf(TreeView)).call(this, props));
 
     _this3.state = {
-      data: props.data,
-      onClick: props.onClick
+      data: props.data
     };
+    _this3.handleClick = _this3.handleClick.bind(_this3);
     return _this3;
   }
 
+  // 新しいパラメータがロードしたコンポーネントにパスされると、実行する。
+
+
   _createClass(TreeView, [{
+    key: 'componentWillReceiveProps',
+    value: function componentWillReceiveProps(newProps) {
+      this.setState({
+        data: newProps.data
+      });
+    }
+  }, {
+    key: 'getValue',
+    value: function getValue() {
+      return this.state.data;
+    }
+  }, {
+    key: 'handleClick',
+    value: function handleClick(node) {
+      var tmpData = this.state.data.slice();
+      setSelected(tmpData, node.id);
+      this.setState({ data: tmpData });
+      this.props.onClick(node);
+    }
+  }, {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
         'div',
-        { id: 'tree_root' },
+        { id: 'tree_root', className: 'treeview' },
         _react2.default.createElement(
           'ul',
-          { className: 'nav nav-pills nav-stacked' },
-          _react2.default.createElement(TreeViewChild, { onClick: this.state.onClick, data: this.state.data })
+          { className: 'list-group' },
+          _react2.default.createElement(TreeViewChild, { onClick: this.handleClick, data: this.state.data,
+            isCheckable: this.props.isCheckable, isEditable: this.props.isEditable, parents: [], level: 0 })
         )
       );
     }
@@ -1076,6 +1214,19 @@ var TreeView = function (_React$Component2) {
 
   return TreeView;
 }(_react2.default.Component);
+
+function setSelected(data, selectId) {
+  data.forEach(function (element) {
+    if (element.id == selectId) {
+      element.state.selected = true;
+    } else {
+      element.state.selected = false;
+    }
+    if (element.children.length > 0) {
+      setSelected(element.children, selectId);
+    }
+  });
+}
 
 window.JSONTreeView = function (element, options) {
   if (!(element instanceof Element)) {
@@ -1094,14 +1245,19 @@ JSONTreeView.prototype = {
   init: function init() {
     var self = this;
     var data = this.options.data || [];
+    var isCheckable = this.options.isCheckable || false;
+    var isEditable = this.options.isEditable || false;
     var onClick = this.options.onClick || this.onClick;
 
-    this.react = _reactDom2.default.render(_react2.default.createElement(TreeView, { onClick: onClick, data: data }), self.element);
+    this.react = _reactDom2.default.render(_react2.default.createElement(TreeView, { onClick: onClick, data: data, isCheckable: isCheckable, isEditable: isEditable }), self.element);
     this.callbacks = {};
   },
   onClick: function onClick(node) {
     // TODO
-    alert(node.id + ':' + node.text);
+    alert(node.id + ':' + node.title);
+  },
+  getValue: function getValue() {
+    return this.react.getValue();
   },
   setValue: function setValue(options) {
     this.options = options;
