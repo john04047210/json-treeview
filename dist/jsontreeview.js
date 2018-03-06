@@ -1189,6 +1189,30 @@ var TreeView = function (_React$Component2) {
       return this.state.data;
     }
   }, {
+    key: 'setSelected',
+    value: function (_setSelected) {
+      function setSelected(_x, _x2) {
+        return _setSelected.apply(this, arguments);
+      }
+
+      setSelected.toString = function () {
+        return _setSelected.toString();
+      };
+
+      return setSelected;
+    }(function (data, selectId) {
+      data.forEach(function (element) {
+        if (element.id == selectId) {
+          element.state.selected = true;
+        } else {
+          element.state.selected = false;
+        }
+        if (element.children.length > 0) {
+          setSelected(element.children, selectId);
+        }
+      });
+    })
+  }, {
     key: 'handleClick',
     value: function handleClick(node) {
       var tmpData = this.state.data.slice();
@@ -1214,19 +1238,6 @@ var TreeView = function (_React$Component2) {
 
   return TreeView;
 }(_react2.default.Component);
-
-function setSelected(data, selectId) {
-  data.forEach(function (element) {
-    if (element.id == selectId) {
-      element.state.selected = true;
-    } else {
-      element.state.selected = false;
-    }
-    if (element.children.length > 0) {
-      setSelected(element.children, selectId);
-    }
-  });
-}
 
 window.JSONTreeView = function (element, options) {
   if (!(element instanceof Element)) {
