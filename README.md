@@ -1,7 +1,7 @@
 # json-treeview
 
 利用ReactJS实现基于json数据生成treeview，并提供编辑等功能
-- Demo: https://john04047210.github.io/json-treeview/examples/index.html
+- Demo: https://john04047210.github.io/json-treeview/index.html
 
 ## Getting started
 --------------------
