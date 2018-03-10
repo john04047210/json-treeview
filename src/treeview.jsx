@@ -159,6 +159,7 @@ class TreeView extends React.Component {
       data: props.data
     };
     this.handleClick = this.handleClick.bind(this);
+    this.handlePlus = this.handlePlus.bind(this);
   }
 
   // 新しいパラメータがロードしたコンポーネントにパスされると、実行する。
@@ -179,12 +180,33 @@ class TreeView extends React.Component {
     this.props.onClick(node);
   }
 
+  handlePlus(event) {
+    if(this.props.isEditable) {
+      let newData = this.state.data.slice();
+      newData.push({
+        id: Date.now(),
+        title: 'new node',
+        icon: "",
+        state: {
+          expand: false,
+          selected: false,
+          checked: false
+        },
+        children: []
+      });
+      this.setState(()=>({data: newData}));
+    } else {
+      event.preventDefault();
+    }
+  }
+
   render() {
     return (
       <div id='tree_root' className="treeview">
         <ul className='list-group'>
           <TreeViewChild onClick={this.handleClick} data={this.state.data} 
           isCheckable={this.props.isCheckable} isEditable={this.props.isEditable} parents={[]} level={0}/>
+          {this.props.isEditable?<button type="button" className="btn btn-default" onClick={this.handlePlus}><span className="glyphicon glyphicon-plus" aria-hidden="true"></span></button>:''}
         </ul>
       </div>
     );
