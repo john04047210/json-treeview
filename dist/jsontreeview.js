@@ -983,6 +983,8 @@ var TreeViewChild = function (_React$Component) {
     _this.handleChecked = _this.handleChecked.bind(_this);
     _this.handlePlus = _this.handlePlus.bind(_this);
     _this.handleMinus = _this.handleMinus.bind(_this);
+    _this.handleEditable = _this.handleEditable.bind(_this);
+    _this.handleChangeTitle = _this.handleChangeTitle.bind(_this);
     return _this;
   }
 
@@ -1077,8 +1079,50 @@ var TreeViewChild = function (_React$Component) {
         } else {
           idx = event.target.parentElement.parentElement.dataset.index;
         }
-        var newData = this.state.data.slice();
+        var newData = this.state.data;
         newData.splice(idx, 1);
+        this.setState(function () {
+          return { data: newData };
+        });
+      } else {
+        event.preventDefault();
+      }
+    }
+  }, {
+    key: 'handleEditable',
+    value: function handleEditable(event) {
+      if (this.props.isEditable) {
+        var idx = -1;
+        if ("SPAN" == event.target.tagName) {
+          idx = event.target.parentElement.parentElement.parentElement.dataset.index;
+        } else {
+          idx = event.target.parentElement.parentElement.dataset.index;
+        }
+        var newData = this.state.data.slice();
+        if (this.state.data[idx].state.edit | false) {
+          newData[idx].state.edit = false;
+        } else {
+          newData[idx].state.edit = true;
+        }
+        this.setState(function () {
+          return { data: newData };
+        });
+      } else {
+        event.preventDefault();
+      }
+    }
+  }, {
+    key: 'handleChangeTitle',
+    value: function handleChangeTitle(event) {
+      if (this.props.isEditable) {
+        var idx = -1;
+        if ("INPUT" == event.target.tagName) {
+          idx = event.target.parentElement.dataset.index;
+        } else {
+          event.preventDefault();
+        }
+        var newData = this.state.data;
+        newData[idx].title = event.target.value;
         this.setState(function () {
           return { data: newData };
         });
@@ -1097,6 +1141,7 @@ var TreeViewChild = function (_React$Component) {
         var indent = [];
         var checked_class = "glyphicon";
         var edit_span = null;
+        var node_title = node.title;
         if (_this2.props.isCheckable) {
           checked_class = node.state.checked ? "icon glyphicon glyphicon-check" : "icon glyphicon glyphicon-unchecked";
         }
@@ -1106,15 +1151,23 @@ var TreeViewChild = function (_React$Component) {
             { className: 'btn-group pull-right' },
             _react2.default.createElement(
               'button',
-              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Create Children', onClick: _this2.handlePlus },
+              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Create Children', onClick: _this2.handlePlus, disabled: node.state.edit | false ? true : false },
               _react2.default.createElement('span', { className: 'glyphicon glyphicon-plus', 'aria-hidden': 'true' })
             ),
             _react2.default.createElement(
               'button',
-              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Remove Children', onClick: _this2.handleMinus },
+              { type: 'button', className: 'btn btn-default btn-xs', 'aria-label': 'Remove Children', onClick: _this2.handleMinus, disabled: node.state.edit | false ? true : false },
               _react2.default.createElement('span', { className: 'glyphicon glyphicon-minus', 'aria-hidden': 'true' })
+            ),
+            _react2.default.createElement(
+              'button',
+              { type: 'button', className: node.state.edit | false ? "btn btn-success btn-xs list-group-item-success" : "btn btn-default btn-xs", 'aria-label': 'Edit Node Title', onClick: _this2.handleEditable },
+              _react2.default.createElement('span', { className: node.state.edit | false ? "glyphicon glyphicon-ok" : "glyphicon glyphicon-edit", 'aria-hidden': 'true' })
             )
           );
+          if (node.state.edit | false) {
+            node_title = _react2.default.createElement('input', { type: 'text', className: 'form-control title-edit input-sm display-block', value: node.title, onChange: _this2.handleChangeTitle });
+          }
         }
         for (var idx = 0; idx < _this2.props.level; idx++) {
           indent.push(_react2.default.createElement('span', { className: 'indent', 'aria-hidden': 'true' }));
@@ -1131,7 +1184,7 @@ var TreeViewChild = function (_React$Component) {
             _react2.default.createElement('span', { className: expand_class, 'aria-hidden': 'true', onClick: _this2.handleToggle }),
             _react2.default.createElement('span', { className: checked_class, 'aria-hidden': 'true', onClick: _this2.handleChecked }),
             _react2.default.createElement('span', { className: 'icon node-icon', 'aria-hidden': 'true' }),
-            node.title
+            node_title
           ));
           if (node.state.expand) {
             var children_node = _react2.default.createElement(TreeViewChild, { key: "parent_" + node.id, onClick: _this2.props.onClick, data: node.children,
@@ -1146,7 +1199,7 @@ var TreeViewChild = function (_React$Component) {
             indent,
             _react2.default.createElement('span', { className: checked_class, 'aria-hidden': 'true', onClick: _this2.handleChecked }),
             _react2.default.createElement('span', { className: 'icon node-icon', 'aria-hidden': 'true' }),
-            node.title
+            node_title
           ));
         }
         return element;
@@ -1232,9 +1285,18 @@ var TreeView = function (_React$Component2) {
           _react2.default.createElement(TreeViewChild, { onClick: this.handleClick, data: this.state.data,
             isCheckable: this.props.isCheckable, isEditable: this.props.isEditable, parents: [], level: 0 }),
           this.props.isEditable ? _react2.default.createElement(
-            'button',
-            { type: 'button', className: 'btn btn-default', onClick: this.handlePlus },
-            _react2.default.createElement('span', { className: 'glyphicon glyphicon-plus', 'aria-hidden': 'true' })
+            'li',
+            { className: 'list-group-item new-item' },
+            _react2.default.createElement(
+              'div',
+              { className: 'btn-group pull-right' },
+              _react2.default.createElement(
+                'button',
+                { type: 'button', className: 'btn btn-default btn-xs', onClick: this.handlePlus },
+                _react2.default.createElement('span', { className: 'glyphicon glyphicon-plus', 'aria-hidden': 'true' })
+              )
+            ),
+            'New Node'
           ) : ''
         )
       );

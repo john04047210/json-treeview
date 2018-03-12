@@ -24,3 +24,14 @@
 .display-block {
 	display: inline-block !important;
 }
+
+.list-group .list-group-item .title-edit {
+	width: 120px;
+	padding: 5px 5px;
+}
+
+.list-group .list-group-item.new-item {
+	border: 1px dashed grey;
+	font-weight: lighter;
+	font-style: italic;
+}

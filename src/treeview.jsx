@@ -13,6 +13,8 @@ class TreeViewChild extends React.Component {
     this.handleChecked = this.handleChecked.bind(this);
     this.handlePlus = this.handlePlus.bind(this);
     this.handleMinus = this.handleMinus.bind(this);
+    this.handleEditable = this.handleEditable.bind(this);
+    this.handleChangeTitle = this.handleChangeTitle.bind(this);
   }
 
   // 新しいパラメータがロードしたコンポーネントにパスされると、実行する。
@@ -91,8 +93,44 @@ class TreeViewChild extends React.Component {
       } else {
         idx = event.target.parentElement.parentElement.dataset.index;
       }
-      let newData = this.state.data.slice();
+      let newData = this.state.data;
       newData.splice(idx, 1);
+      this.setState(()=>({data: newData}));
+    } else {
+      event.preventDefault();
+    }
+  }
+
+  handleEditable(event) {
+    if(this.props.isEditable) {
+      let idx = -1;
+      if("SPAN" == event.target.tagName) {
+        idx = event.target.parentElement.parentElement.parentElement.dataset.index;
+      } else {
+        idx = event.target.parentElement.parentElement.dataset.index;
+      }
+      let newData = this.state.data.slice();
+      if(this.state.data[idx].state.edit | false) {
+        newData[idx].state.edit = false;
+      } else {
+        newData[idx].state.edit = true;
+      }
+      this.setState(()=>({data: newData}));
+    } else {
+      event.preventDefault();
+    }
+  }
+
+  handleChangeTitle(event) {
+    if(this.props.isEditable) {
+      let idx = -1;
+      if("INPUT" == event.target.tagName) {
+        idx = event.target.parentElement.dataset.index;
+      } else {
+        event.preventDefault();
+      }
+      let newData = this.state.data;
+      newData[idx].title = event.target.value;
       this.setState(()=>({data: newData}));
     } else {
       event.preventDefault();
@@ -106,16 +144,22 @@ class TreeViewChild extends React.Component {
       let indent = [];
       let checked_class = "glyphicon";
       let edit_span = null;
+      let node_title = node.title;
       if(this.props.isCheckable) {
         checked_class = node.state.checked?"icon glyphicon glyphicon-check":"icon glyphicon glyphicon-unchecked";
       }
       if(this.props.isEditable) {
-        edit_span = <div className="btn-group pull-right">
-                      <button type="button" className="btn btn-default btn-xs" aria-label="Create Children" onClick={this.handlePlus}>
+        edit_span = (<div className="btn-group pull-right">
+                      <button type="button" className="btn btn-default btn-xs" aria-label="Create Children" onClick={this.handlePlus} disabled={node.state.edit|false?true:false}>
                         <span className="glyphicon glyphicon-plus" aria-hidden="true"></span></button>
-                      <button type="button" className="btn btn-default btn-xs" aria-label="Remove Children" onClick={this.handleMinus}>
+                      <button type="button" className="btn btn-default btn-xs" aria-label="Remove Children" onClick={this.handleMinus} disabled={node.state.edit|false?true:false}>
                         <span className="glyphicon glyphicon-minus" aria-hidden="true"></span></button>
-                    </div>
+                      <button type="button" className={node.state.edit|false?"btn btn-success btn-xs list-group-item-success":"btn btn-default btn-xs"} aria-label="Edit Node Title" onClick={this.handleEditable}>
+                        <span className={node.state.edit|false?"glyphicon glyphicon-ok":"glyphicon glyphicon-edit"} aria-hidden="true"></span></button>
+                    </div>);
+        if(node.state.edit | false) {
+          node_title = <input type="text" className="form-control title-edit input-sm display-block" value={node.title} onChange={this.handleChangeTitle}/>
+        }
       }
       for(let idx=0; idx<this.props.level; idx++) {
         indent.push(<span className="indent" aria-hidden="true"></span>);
@@ -129,7 +173,7 @@ class TreeViewChild extends React.Component {
           <span className={expand_class} aria-hidden="true" onClick={this.handleToggle}></span>
           <span className={checked_class} aria-hidden="true" onClick={this.handleChecked}></span>
           <span className="icon node-icon" aria-hidden="true"></span>
-          {node.title}
+          {node_title}
         </li>);
         if(node.state.expand) {
           let children_node = <TreeViewChild key={"parent_"+node.id} onClick={this.props.onClick} data={node.children} 
@@ -142,7 +186,7 @@ class TreeViewChild extends React.Component {
             {edit_span}{indent}
             <span className={checked_class} aria-hidden="true" onClick={this.handleChecked}></span>
             <span className="icon node-icon" aria-hidden="true"></span>
-            {node.title}
+            {node_title}
           </li>
         )
       }
@@ -206,7 +250,13 @@ class TreeView extends React.Component {
         <ul className='list-group'>
           <TreeViewChild onClick={this.handleClick} data={this.state.data} 
           isCheckable={this.props.isCheckable} isEditable={this.props.isEditable} parents={[]} level={0}/>
-          {this.props.isEditable?<button type="button" className="btn btn-default" onClick={this.handlePlus}><span className="glyphicon glyphicon-plus" aria-hidden="true"></span></button>:''}
+          {this.props.isEditable?
+          <li className="list-group-item new-item"><div className="btn-group pull-right">
+            <button type="button" className="btn btn-default btn-xs" onClick={this.handlePlus}>
+            <span className="glyphicon glyphicon-plus" aria-hidden="true"></span></button></div>
+            New Node
+          </li>:''
+          }
         </ul>
       </div>
     );
